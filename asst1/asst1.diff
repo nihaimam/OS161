@@ -1,0 +1,392 @@
+Index: os161-1.11/kern/asst1/stoplight.c
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/asst1/stoplight.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+21c21
+< 
+---
+> #include <synch.h>
+34a35,40
+> struct lock *NW;
+> struct lock *NE;
+> struct lock *SW;
+> struct lock *SE;
+> struct lock *temp;
+> int ctr = 0;
+41a48
+> static const char *directions[] = { "North", "East", "South", "West" };
+59,64c66
+< 
+< static
+< void
+< gostraight(unsigned long cardirection,
+<            unsigned long carnumber)
+< {
+---
+> static void gostraight(unsigned long cardirection, unsigned long carnumber){
+68,70c70,113
+<         
+<         (void) cardirection;
+<         (void) carnumber;
+---
+> 	//car direction = 0-north 1-east 2-south 3-west
+>         //always lock in SE NE NW SW pattern
+>         switch(cardirection){
+> 		case 0: //coming from north
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(NW);
+> 			lock_acquire(SW);
+> 			kprintf("car %02d | in NW region\n", carnumber);
+> 			kprintf("car %02d | in SW region\n", carnumber);
+> 			lock_release(SW);
+> 			lock_release(NW);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 		case 1: //coming from east
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(NE);
+> 			lock_acquire(NW);
+> 			kprintf("car %02d | in NE region\n", carnumber);
+> 			kprintf("car %02d | in NW region\n", carnumber);
+> 			lock_release(NW);
+> 			lock_release(NE);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 		case 2: //coming from south
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(SE);
+> 			lock_acquire(NE);
+> 			kprintf("car %02d | in SE region\n", carnumber);
+> 			kprintf("car %02d | in NE region\n", carnumber);
+> 			lock_release(NE);
+> 			lock_release(SE);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 		case 3: //coming from west
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(SE);
+> 			lock_acquire(SW);
+> 			kprintf("car %02d | in SW region\n", carnumber);
+> 			kprintf("car %02d | in SE region\n", carnumber);
+> 			lock_release(SW);
+> 			lock_release(SE);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 	}       
+90,95c133
+< 
+< static
+< void
+< turnleft(unsigned long cardirection,
+<          unsigned long carnumber)
+< {
+---
+> static void turnleft(unsigned long cardirection, unsigned long carnumber){
+99,102c137,193
+< 
+<         (void) cardirection;
+<         (void) carnumber;
+< }
+---
+> 	//car direction = 0-north 1-east 2-south 3-west
+> 	//always lock in SE NE NW SW pattern
+> 	switch(cardirection){
+> 		case 0: //coming from north
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(SE);
+> 			lock_acquire(NW);
+> 			lock_acquire(SW);
+> 			kprintf("car %02d | in NW region\n", carnumber);
+> 			kprintf("car %02d | in SW region\n", carnumber);
+> 			kprintf("car %02d | in SE region\n", carnumber);
+> 			lock_release(SW);
+> 			lock_release(NW);
+> 			lock_release(SE);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);				
+> 			break;
+> 		case 1: //coming from east
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(NE);
+> 			lock_acquire(NW);
+> 			lock_acquire(SW);
+> 			kprintf("car %02d | in NE region\n", carnumber);
+> 			kprintf("car %02d | in NW region\n", carnumber);
+> 			kprintf("car %02d | in SW region\n", carnumber);
+> 			lock_release(SW);
+> 			lock_release(NW);
+> 			lock_release(NE);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 		case 2: //coming from south
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(SE);
+> 			lock_acquire(NE);
+> 			lock_acquire(NW);
+> 			kprintf("car %02d | in SE region\n", carnumber);
+> 			kprintf("car %02d | in NE region\n", carnumber);
+> 			kprintf("car %02d | in NW region\n", carnumber);
+> 			lock_release(NW);
+> 			lock_release(NE);
+> 			lock_release(SE);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 		case 3: //coming from west
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(SE);
+> 			lock_acquire(NE);
+> 			lock_acquire(SW);
+> 			kprintf("car %02d | in SW region\n", carnumber);
+> 			kprintf("car %02d | in SE region\n", carnumber);
+> 			kprintf("car %02d | in NE region\n", carnumber);
+> 			lock_release(SW);
+> 			lock_release(NE);
+> 			lock_release(SE);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 	}
+> }	
+121,126c212
+< 
+< static
+< void
+< turnright(unsigned long cardirection,
+<           unsigned long carnumber)
+< {
+---
+> static void turnright(unsigned long cardirection, unsigned long carnumber){
+130,132c216,246
+< 
+<         (void) cardirection;
+<         (void) carnumber;
+---
+> 	//car direction = 0-north 1-east 2-south 3-west
+> 	switch(cardirection){
+> 		case 0: //coming from north
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(NW);
+> 			kprintf("car %02d | in NW region\n", carnumber);
+> 			lock_release(NW);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 		case 1: //coming from east 
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(SE);
+> 			kprintf("car %02d | in SE region\n", carnumber);
+> 			lock_release(SE);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 		case 2: //coming from south
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(NE);
+> 			kprintf("car %02d | in NE region\n", carnumber);
+> 			lock_release(NE);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 		case 3: //coming from west
+> 			kprintf("car %02d | is approaching the intersection!\n", carnumber);
+> 			lock_acquire(SW);
+> 			kprintf("car %02d | in SW region\n", carnumber);
+> 			lock_release(SW);
+> 			kprintf("car %02d | has left the intersection!\n", carnumber);
+> 			break;
+> 	}
+155,168c269,277
+<  
+< static
+< void
+< approachintersection(void * unusedpointer,
+<                      unsigned long carnumber)
+< {
+<         int cardirection;
+< 
+<         /*
+<          * Avoid unused variable and function warnings.
+<          */
+< 
+<         (void) unusedpointer;
+<         (void) carnumber;
+---
+> static void approachintersection(void * unusedpointer, unsigned long carnumber){
+> 	int initdirection;
+> 	int turning;
+> 	
+> 	/*
+> 	 * Avoid unused variable and function warnings.
+> 	 */
+> 	(void) unusedpointer;
+> 	(void) carnumber;
+172,177c281,317
+< 
+<         /*
+<          * cardirection is set randomly.
+<          */
+< 
+<         cardirection = random() % 4;
+---
+> 	
+> 	//0 = north, 1 = east, 2 = south, 3 = west
+> 	initdirection = random() % 4;
+> 	//0 = turn left 1 = straight 2 = turn right
+> 	turning = random() % 3;
+> 	
+> 	int i = 0;
+> 	int dest = 0;
+> 	if (turning = 0){
+> 		//set destination according to where the car is coming from
+> 		dest = initdirection + 1;
+> 		if (initdirection == 3){dest = 0;}
+> 		kprintf("car %02d | approaching from %s | turning left | destintion %s\n",
+> 			carnumber, directions[initdirection], directions[dest]);
+> 		turnleft(initdirection, carnumber);
+> 	}
+> 	if (turning = 1){
+> 		//set destination according to where the car is coming from
+> 		if (initdirection == 2){dest = 0;}
+> 		if (initdirection == 3){dest = 1;}
+> 		if (initdirection == 0){dest = 2;}
+> 		if (initdirection == 1){dest = 3;}
+> 		kprintf("car %02d | approaching from %s | turning left | destintion %s\n",
+> 			carnumber, directions[initdirection], directions[dest]);
+> 		gostraight(initdirection, carnumber);
+> 	}
+> 	if (turning = 2){
+> 		//set destination according to where the car is coming from
+> 		dest = initdirection - 1;
+> 		if (initdirection == 0){dest = 3;}
+> 		kprintf("car %02d | approaching from %s | turning right | destintion %s\n",
+> 			carnumber, directions[initdirection], directions[dest]);
+> 		turnright(initdirection, carnumber);
+> 	}
+> 	lock_acquire(temp);
+> 	ctr++;
+> 	lock_release(temp);
+195,202c335,337
+< 
+< int
+< createcars(int nargs,
+<            char ** args)
+< {
+<         int index, error;
+< 
+<         /*
+---
+> int createcars(int nargs, char ** args){
+> 	int index, error;
+> 	/*
+205,221c340,353
+< 
+<         (void) nargs;
+<         (void) args;
+< 
+<         /*
+<          * Start NCARS approachintersection() threads.
+<          */
+< 
+<         for (index = 0; index < NCARS; index++) {
+< 
+<                 error = thread_fork("approachintersection thread",
+<                                     NULL,
+<                                     index,
+<                                     approachintersection,
+<                                     NULL
+<                                     );
+< 
+---
+> 	(void) nargs;
+> 	(void) args;
+> 	//initialize the locks
+> 	NW = lock_create("NW"); 
+> 	NE = lock_create("NE");
+> 	SW = lock_create("SW");
+> 	SE = lock_create("SE");
+> 	temp = lock_create("temp_lock"); 
+> 	/*
+> 	* Start NCARS approachintersection() threads.
+> 	*/
+> 	for (index = 0; index < NCARS; index++){
+> 		error = thread_fork("approachintersection thread", NULL,
+>                                     index, approachintersection, NULL);
+225,230c357,358
+< 
+<                 if (error) {
+<                         
+<                         panic("approachintersection: thread_fork failed: %s\n",
+<                               strerror(error)
+<                               );
+---
+>                 if (error){
+>                         panic("approachintersection: thread_fork failed: %s\n", strerror(error));
+233c361
+< 
+---
+> 	while(ctr < 20){}
+235a364
+> 	
+Index: os161-1.11/kern/include/synch.h
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/include/synch.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+53a54,55
+> 	volatile int lock_occupied; // 0 if lock not taken, 1 if lock is taken.
+> 	volatile struct thread *lock_holder; // This thread will represent the person holding the lock
+Index: os161-1.11/kern/thread/synch.c
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/thread/synch.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+117a118,119
+> 	lock -> lock_occupied = 0; //lock currently not held
+> 	lock -> lock_holder = NULL; //lock currently has no holder
+127a130
+> 	//lock = NULL; // set struct to null
+130a134
+> 	lock = NULL;
+137c141,152
+< 
+---
+> 	int spl;
+> 	assert(lock != NULL);
+> 	if (lock_do_i_hold(lock)) return; //do nothing if you already have the lock
+> 	spl = splhigh(); //disable all interrupts
+> 	while (lock->lock_occupied == 1 && lock->lock_holder != curthread){
+> 		//if the lock is being held by another thread then we must sleep.
+> 		thread_sleep(lock);
+> 	}
+> 	//we can take the lock
+> 	lock -> lock_occupied = 1;
+>         lock -> lock_holder = curthread;
+> 	splx(spl); //enable all interrupts
+145c160,169
+< 
+---
+> 	int spl;
+> 	assert(lock != NULL);
+> 	spl = splhigh(); //disable all interrupts
+> 	if (lock_do_i_hold(lock)){ //make sure you actually hold the lock
+> 		//give up the lock
+> 		lock -> lock_occupied = 0;
+>         	lock -> lock_holder = NULL;
+> 		thread_wakeup(lock);
+> 	}
+> 	splx(spl); //enable all interrupts
+153,156c177,186
+< 
+< 	(void)lock;  // suppress warning until code gets written
+< 
+< 	return 1;    // dummy until code gets written
+---
+> 	int spl;	
+> 	assert(lock != NULL);
+> 	spl = splhigh(); //disable all interrupts
+> 	//the lock_held should be 1 and the name of the lock holder should be the name of current thread
+> 	if (lock -> lock_occupied == 1 && lock -> lock_holder == curthread){
+> 		splx(spl); //enable all interrupts
+> 		return 1;
+> 	}
+> 	splx(spl); //enable all interrupts
+> 	return 0;

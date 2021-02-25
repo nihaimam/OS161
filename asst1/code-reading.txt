@@ -1,0 +1,35 @@
+Thread Questions
+1. What happens to a thread when it exits (i.e., calls thread_exit())? What about when it sleeps?
+> thread_exit causes the current thread to exit, and the parts of a thread that we dont need get cleaned up. when thread sleeps it hands over the control to the os or to another process until thread_wakeup is called. 
+
+2. What function(s) handle(s) a context switch?
+> mi_switch() or md_switch()
+
+3. What does it mean for a thread to be in each of the possible thread states?
+> the thread states are S_RUN (thread is currently running), S_READY(thread is ready to run), S_SLEEP(thread is sleeping), S_ZOMB(thread is a zombie, parent is dead)
+
+4. What does it mean to turn interrupts off? How is this accomplished? Why is it important to turn off interrupts in the thread subsystem code?
+> splhigh() turns the interrupts off, its important to turn them off so that the thread subsytem code can run atomically without interruptions 
+
+5. What happens when a thread wakes up another thread? How does a sleeping thread get to run again?
+> when a thread wakes up another thread from sleep, it makes it ready and inserts it in the run queue
+
+
+Scheduler Questions
+6. What function is responsible for choosing the next thread to run?
+> thread *scheduler(void) is responsible for the next thread to run
+
+7. How does that function pick the next thread?
+> by calling cpu_idle() recursively till the runqueue is empty
+
+8. What role does the hardware timer play in scheduling? What hardware independent function is called on a timer interrupt?
+> it called hardclock() in hardclock.c which will make a thread yield to another thread
+
+
+Synchronization Questions
+9. Describe how thread_sleep() and thread_wakeup() are used to implement semaphores. What is the purpose of the argument passed to thread_sleep()?
+> thread_sleep and thread_wakeup are used to implement semaphores by treating a sleeping thread as a lock and a thread_wakeup call as a release
+
+10. Why does the lock API in OS/161 provide lock_do_i_hold(), but not lock_get_holder()?
+> lock_do_i_hold() is used to help the thread find out if it holds the lock and release it, lock_get_holder is not necessary because the thread would end up getting itself as the retun
+

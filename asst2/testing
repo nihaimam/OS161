@@ -1,0 +1,382 @@
+Script started on Mon 25 Nov 2019 11:40:52 PM EST
+[?1034hbash-4.2$ cd os*/os*/kern/conf
+bash-4.2$ ./config Ass[K[KSST2
+Configuration ASST2
+Generating files... opt-*.h files.mk defs.mk Makefile autoconf.h autoconf.c
+Configuration in ../compile/ASST2 done
+Remember to make depend
+bash-4.2$ cd ../compile/ASST2
+bash-4.2$ make depend
+cs161-gcc   -mno-abicalls -fno-pic -Wall -W -Wwrite-strings -g -nostdinc -I../../include -I../../dev -I.  -ffreestanding -D_KERNEL -G 0 -M ../../dev/generic/console.c ../../dev/lamebus/emu.c ../../dev/lamebus/lser.c ../../dev/lamebus/lhd.c ../../dev/generic/pseudorand.c ../../dev/generic/random.c ../../dev/lamebus/ltimer.c ../../dev/lamebus/lamebus.c ../../dev/lamebus/lrandom.c ../../dev/generic/beep.c ../../dev/lamebus/ltrace.c ../../dev/generic/rtclock.c ../../dev/lamebus/ltimer_att.c ../../dev/lamebus/con_lser.c ../../dev/lamebus/lhd_att.c ../../dev/lamebus/random_lrandom.c ../../dev/lamebus/rtclock_ltimer.c ../../dev/lamebus/ltrace_att.c ../../dev/lamebus/lser_att.c ../../dev/lamebus/lrandom_att.c ../../dev/lamebus/emu_att.c ../../dev/lamebus/beep_ltimer.c ../../dev/generic/pseudorand_att.c ../../fs/sfs/sfs_vnode.c ../../fs/sfs/sfs_fs.c ../../arch/mips/mips/dumbvm.c ../../fs/sfs/sfs_io.c ../../arch/mips/mips/cache_mips1.S ../../arch/mips/mips/exception.S ../../arch/mips/mips/lamebus_mips.c ../../arch/mips/mips/interrupt.c ../../arch/mips/mips/pcb.c ../../arch/mips/mips/ram.c ../../arch/mips/mips/spl.c ../../arch/mips/mips/start.S ../../arch/mips/mips/switch.S ../../arch/mips/mips/syscall.c ../../arch/mips/mips/threadstart.S ../../arch/mips/mips/trap.c ../../arch/mips/mips/tlb_mips1.S ../../../lib/libc/mips-setjmp.S ../../lib/copyinout.c ../../lib/array.c ../../lib/bitmap.c ../../lib/queue.c ../../lib/kheap.c ../../lib/kprintf.c ../../lib/kgets.c ../../lib/misc.c ../../lib/ntoh.c ../../../lib/libc/__printf.c ../../../lib/libc/snprintf.c ../../../lib/libc/atoi.c ../../../lib/libc/bzero.c ../../../lib/libc/memcpy.c ../../../lib/libc/memmove.c ../../../lib/libc/strcat.c ../../../lib/libc/strchr.c ../../../lib/libc/strcmp.c ../../../lib/libc/strcpy.c ../../../lib/libc/strlen.c ../../../lib/libc/strrchr.c ../../../lib/libc/strtok_r.c ../../dev/init.c ../../fs/vfs/device.c ../../fs/vfs/vfscwd.c ../../fs/vfs/vfslist.c ../../fs/vfs/vfslookup.c ../../fs/vfs/vfspath.c ../../fs/vfs/vnode.c ../../fs/vfs/devnull.c ../../thread/hardclock.c ../../thread/synch.c ../../thread/scheduler.c ../../thread/thread.c ../../thread/process_create.c ../../main/main.c ../../main/menu.c ../../main/hello.c ../../userprog/loadelf.c ../../userprog/runprogram.c ../../userprog/uio.c ../../userprog/syscall_impl.c ../../test/arraytest.c ../../test/bitmaptest.c ../../test/queuetest.c ../../test/threadtest.c ../../test/tt3.c ../../test/synchtest.c ../../test/malloctest.c ../../test/fstest.c ../../compile/ASST2/autoconf.c > depend.mk
+bash-4.2$ make in[K[K[K
+cs161-gcc   -mno-abicalls -fno-pic -Wall -W -Wwrite-strings -g -nostdinc -I../../include -I../../dev -I.  -ffreestanding -D_KERNEL -G 0 -c ../../compile/ASST2/autoconf.c
+../../conf/newvers.sh ASST2
+*** This is ASST2 build #31 ***
+cs161-gcc   -mno-abicalls -fno-pic -Wall -W -Wwrite-strings -g -nostdinc -I../../include -I../../dev -I.  -ffreestanding -D_KERNEL -G 0 -c vers.c
+cs161-ld   -nostdlib -Ttext 0x80001000 -T ../../arch/mips/conf/ldscript -G 0 console.o emu.o lser.o lhd.o pseudorand.o random.o ltimer.o lamebus.o lrandom.o beep.o ltrace.o rtclock.o ltimer_att.o con_lser.o lhd_att.o random_lrandom.o rtclock_ltimer.o ltrace_att.o lser_att.o lrandom_att.o emu_att.o beep_ltimer.o pseudorand_att.o sfs_vnode.o sfs_fs.o dumbvm.o sfs_io.o cache_mips1.o exception.o lamebus_mips.o interrupt.o pcb.o ram.o spl.o start.o switch.o syscall.o threadstart.o trap.o tlb_mips1.o mips-setjmp.o copyinout.o array.o bitmap.o queue.o kheap.o kprintf.o kgets.o misc.o ntoh.o __printf.o snprintf.o atoi.o bzero.o memcpy.o memmove.o strcat.o strchr.o strcmp.o strcpy.o strlen.o strrchr.o strtok_r.o init.o device.o vfscwd.o vfslist.o vfslookup.o vfspath.o vnode.o devnull.o hardclock.o synch.o scheduler.o thread.o process_create.o main.o menu.o hello.o loadelf.o runprogram.o uio.o syscall_impl.o arraytest.o bitmaptest.o queuetest.o threadtest.o tt3.o synchtest.o malloctest.o fstest.o autoconf.o vers.o -o kernel
+cs161-size kernel
+   text	   data	    bss	    dec	    hex	filename
+ 171192	    464	   7676	 179332	  2bc84	kernel
+bash-4.2$ make isn[K[Knstall
+[ -d /home/nimam/os161/root ] || mkdir /home/nimam/os161/root
+cp kernel /home/nimam/os161/root/kernel-ASST2
+rm -f /home/nimam/os161/root/kernel
+ln -s kernel-ASST2 /home/nimam/os161/root/kernel
+bash-4.2$ cd ~/os*/root
+bash-4.2$ sys161 kernel "tt2"[1P"1"
+sys161: System/161 release 1.14, compiled Sep  4 2014 10:34:58
+
+OS/161 base system version 1.11
+Copyright (c) 2000, 2001, 2002, 2003
+   President and Fellows of Harvard College.  All rights reserved.
+
+Hello World!
+Niha's system version 0 (ASST2 #31)
+
+Cpu is MIPS r2000/r3000
+1864k physical memory available
+Device probe...
+lamebus0 (system main bus)
+emu0 at lamebus0
+ltrace0 at lamebus0
+ltimer0 at lamebus0
+hardclock on ltimer0 (100 hz)
+beep0 at ltimer0
+rtclock0 at ltimer0
+lrandom0 at lamebus0
+random0 at lrandom0
+lhd0 at lamebus0
+lhd1 at lamebus0
+lser0 at lamebus0
+con0 at lser0
+pseudorand0 (virtual)
+
+OS/161 kernel: tt1
+Starting thread test...
+012345670000000000000000000000000000000000000000000000000000000011111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111110000000000000000000000000000000000000000000000222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222223333333333333333333333333333333333333333334444444444444444444444444444444444444444444444444444444555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555555556666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666666677777777777777777777777777777777777777777777777777777777777777777777777777777777777777777000013333333333333333333333333333333333333333333333333333333333333333333333333333344444444444444444444444444444444444444444444444444444444444444447777777777777777777777777777770000000000000
+Thread test done.
+Operation took 0.519781800 seconds
+OS/161 kernel [? for menu]: q
+Shutting down.
+The system is halted.
+sys161: 66185724 cycles (15700485k, 0u, 50485239i)
+sys161: 1856 irqs 0 exns 0r/0w disk 2r/1665w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.646117 seconds (25.0124 mhz)
+sys161: Elapsed virtual time: 2.647428960 seconds (25 mhz)
+bash-4.2$ sys161 kernel "tt1"[1P"2"
+sys161: System/161 release 1.14, compiled Sep  4 2014 10:34:58
+
+OS/161 base system version 1.11
+Copyright (c) 2000, 2001, 2002, 2003
+   President and Fellows of Harvard College.  All rights reserved.
+
+Hello World!
+Niha's system version 0 (ASST2 #31)
+
+Cpu is MIPS r2000/r3000
+1864k physical memory available
+Device probe...
+lamebus0 (system main bus)
+emu0 at lamebus0
+ltrace0 at lamebus0
+ltimer0 at lamebus0
+hardclock on ltimer0 (100 hz)
+beep0 at ltimer0
+rtclock0 at ltimer0
+lrandom0 at lamebus0
+random0 at lrandom0
+lhd0 at lamebus0
+lhd1 at lamebus0
+lser0 at lamebus0
+con0 at lser0
+pseudorand0 (virtual)
+
+OS/161 kernel: tt2
+Starting thread test 2...
+0123456701245673
+Thread test 2 done.
+Operation took 0.665619920 seconds
+OS/161 kernel [? for menu]: q
+Shutting down.
+The system is halted.
+sys161: 73490850 cycles (19373799k, 0u, 54117051i)
+sys161: 993 irqs 0 exns 0r/0w disk 2r/725w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 2.939439 seconds (25.0017 mhz)
+sys161: Elapsed virtual time: 2.939634000 seconds (25 mhz)
+bash-4.2$ sys161 kernel "tt2"[1P"3"
+sys161: System/161 release 1.14, compiled Sep  4 2014 10:34:58
+
+OS/161 base system version 1.11
+Copyright (c) 2000, 2001, 2002, 2003
+   President and Fellows of Harvard College.  All rights reserved.
+
+Hello World!
+Niha's system version 0 (ASST2 #31)
+
+Cpu is MIPS r2000/r3000
+1864k physical memory available
+Device probe...
+lamebus0 (system main bus)
+emu0 at lamebus0
+ltrace0 at lamebus0
+ltimer0 at lamebus0
+hardclock on ltimer0 (100 hz)
+beep0 at ltimer0
+rtclock0 at ltimer0
+lrandom0 at lamebus0
+random0 at lrandom0
+lhd0 at lamebus0
+lhd1 at lamebus0
+lser0 at lamebus0
+con0 at lser0
+pseudorand0 (virtual)
+
+OS/161 kernel: tt3
+Starting thread test 3 (5 [sleepalots], 2 {computes}, 1 waker)
+[2][3][4]{1: 217}[4]{0: 5}[2][0][3][1][4][0][3][4][2][1]{1: 225}[0]{0: 187}[2][4][0][3][1][0][4][2][1]{1: 103}[3][2]{0: 56}[0][0][4][2][1]{1: 116}[3][4][2][0][1][3]{0: 134}[2][3][2][0][4]{1: 169}[1][2][4][0][3][2][3][0][1]{0: 199}[4][0][1][3][1][2][0][3]{1: 100}[4][1][2][0][1][2][1][0]{0: 34}[2][3][3][0][1]{1: 27}[3][0][4]{0: 245}[1][2][3]{1: 224}[1][0][4][2][1][0]{0: 239}[4][2]{1: 148}[3][1][0]{0: 38}[1][2][3]{1: 191}[1][4][3][4]{0: 119}[3][4][4][4]
+Thread test 3 done
+Operation took 12.606364560 seconds
+OS/161 kernel [? for menu]: q
+Shutting down.
+The system is halted.
+sys161: 606402158 cycles (319317402k, 0u, 287084756i)
+sys161: 3583 irqs 0 exns 0r/0w disk 2r/1200w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 24.256065 seconds (25 mhz)
+sys161: Elapsed virtual time: 24.256086320 seconds (25 mhz)
+bash-4.2$ sys161 kernel "sy3"
+sys161: System/161 release 1.14, compiled Sep  4 2014 10:34:58
+
+OS/161 base system version 1.11
+Copyright (c) 2000, 2001, 2002, 2003
+   President and Fellows of Harvard College.  All rights reserved.
+
+Hello World!
+Niha's system version 0 (ASST2 #31)
+
+Cpu is MIPS r2000/r3000
+1864k physical memory available
+Device probe...
+lamebus0 (system main bus)
+emu0 at lamebus0
+ltrace0 at lamebus0
+ltimer0 at lamebus0
+hardclock on ltimer0 (100 hz)
+beep0 at ltimer0
+rtclock0 at ltimer0
+lrandom0 at lamebus0
+random0 at lrandom0
+lhd0 at lamebus0
+lhd1 at lamebus0
+lser0 at lamebus0
+con0 at lser0
+pseudorand0 (virtual)
+
+OS/161 kernel: sy3
+Starting CV test...
+Threads should print out in reverse order.
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+Thread 31
+Thread 30
+Thread 29
+Thread 28
+Thread 27
+Thread 26
+Thread 25
+Thread 24
+Thread 23
+Thread 22
+Thread 21
+Thread 20
+Thread 19
+Thread 18
+Thread 17
+Thread 16
+Thread 15
+Thread 14
+Thread 13
+Thread 12
+Thread 11
+Thread 10
+Thread 9
+Thread 8
+Thread 7
+Thread 6
+Thread 5
+Thread 4
+Thread 3
+Thread 2
+Thread 1
+Thread 0
+CV test done
+Operation took 1.761340840 seconds
+OS/161 kernel [? for menu]: q
+Shutting down.
+The system is halted.
+sys161: 149863365 cycles (47067600k, 0u, 102795765i)
+sys161: 2821 irqs 0 exns 0r/0w disk 2r/2288w console 0r/0w/1m emufs 0r/0w net
+sys161: Elapsed real time: 5.994878 seconds (24.9986 mhz)
+sys161: Elapsed virtual time: 5.994534600 seconds (25 mhz)
+bash-4.2$ sys161 kernel "sy3"[1P"[1P"[1P"p" "t"e"s"t"b"i"n"/"f"o"r"k"t"e"s"t"
+sys161: System/161 release 1.14, compiled Sep  4 2014 10:34:58
+
+OS/161 base system version 1.11
+Copyright (c) 2000, 2001, 2002, 2003
+   President and Fellows of Harvard College.  All rights reserved.
+
+Hello World!
+Niha's system version 0 (ASST2 #31)
+
+Cpu is MIPS r2000/r3000
+1864k physical memory available
+Device probe...
+lamebus0 (system main bus)
+emu0 at lamebus0
+ltrace0 at lamebus0
+ltimer0 at lamebus0
+hardclock on ltimer0 (100 hz)
+beep0 at ltimer0
+rtclock0 at ltimer0
+lrandom0 at lamebus0
+random0 at lrandom0
+lhd0 at lamebus0
+lhd1 at lamebus0
+lser0 at lamebus0
+con0 at lser0
+pseudorand0 (virtual)
+
+OS/161 kernel: p testbin/forktest
+Operation took 0.000358480 seconds
+OS/161 kernel [? for menu]: (program name unknown): Starting.
+010122123123332323323333332333
+(program name unknown): Complete.
+
+bash-4.2$ [Kbash-4.2$ [Kbash-4.2$ exit
+
+Script done on Mon 25 Nov 2019 11:45:01 PM EST

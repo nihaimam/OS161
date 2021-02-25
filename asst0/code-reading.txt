@@ -1,0 +1,54 @@
+Niha Imam
+CS 471-002
+
+1) Which register number is used for the stack pointer (sp) in OS/161? How do you know? Explain your answer.
+= the file ~/os161/os161-1.11/kern/arch/mips/include/asmdefs.h states that the stack pointer (sp) is register $29.
+
+
+2) What bus/busses does the OS/161 support? How do you know? Explain your answer.
+= the file ~/os161/os161-1.11/kern/arch/mips/include/bus.h states that the only bus we support for MIPS is LAMEbus.
+
+
+3) What is the difference between splhigh and spl0? Explain.
+= the file ~/os161/os161-1.11/kern/arch/mips/include/spl.h states that "spl" stands for "set priority level". splhigh() sets spl to the highest value, disabling all interrupts while spl0() sets spl to 0, enabling all interrupts. 
+
+
+4) What are some of the details which would make a function "machine dependent"? Why might it be important to maintain this separation, instead of just putting all of the code in one function?
+= the file ~/os161/os161-1.11/kern/arch/mips/include/pcb.h states that if a function uses system specific calls. It would be the case that the function is machine dependant.
+
+
+5) What does splx return?
+= the file ~/os161/os161-1.11/kern/arch/mips/include/spl.h states that all three spl functions return the old interrupt state.
+
+
+6) What is the highest interrupt level? How did you get your answer? Explain.
+= the file ~/os161/os161-1.11/kern/arch/mips/include/spl.h states that the highest interrupt level is 15.
+
+
+7) How frequently are hardclock interrupts generated? How do you know? Explain. 
+= the file ~/os161/os161-1.11/kern/include/clock.h states that hardclock interrupts are generated every 100hz
+
+
+8) How large are OS/161 pids (process identifiers)? How many processes do you think OS/161 could support as you have it now? A sentence or two for justification is fine.
+= the file ~/os161/os161-1.11/kern/include/elf.h states 32 bits only under restrictions. taking those restrictions into account for 32 bits it can support 2^32 - 1 different processes. 
+
+
+9) What is the system call number for a reboot? Is this value available to userspace programs? Why or why not?
+= the file ~/os161/os161-1.11/kern/include/kern/callno.h states that the system call number for a reboot is 8. it is available to the user space in case the user needs to reboot the program. 
+
+
+10) What is the purpose of functions like copyin and copyout in copyinout.c? What do they protect against? Where might you want to use these functions?
+= the file ~/os161/os161-1.11/kern/lib/copyinout.c states that copyin copies a block of memory of length LEN from user-level address USERSRC to kernel address DEST and copyout copies a block of memory of length LEN from kernel address SRC to user-level address USERDEST. These are arranged to prevent fatal kernel memory faults if invalid addresses are supplied by user-level code.
+
+
+11) Is it OK to initialize the thread system before the scheduler? Why (not)?
+= the files ~/os161/os161-1.11/kern/thread/scheduler.c and ~/os161/os161-1.11/kern/thread/thread.c states that it is ok to initialize the thread system before the scheduler. The scheduler bootstrap just creates the run queue, and the thread bootstrap just initializes the first thread.
+
+
+12) What are the possible states that a thread can be in? When do “zombie” threads finally get cleaned up? How did you obtain your answer. Explain.
+= the ~/os161/os161-1.11/kern/thread/thread.c state the four possible states of a thread are run, ready, sleep and zombie. While exorcise function removes all the zombies it is the function thread_shutdown that finally cleans up and destroys all the zombie threads.
+
+
+13) What function puts a thread to sleep? When might you want to use this function?
+= the ~/os161/os161-1.11/kern/thread/thread.c states that the function 
+thread_sleep is used to put a thread to sleep, this is useful when yielding the cpu to another process.

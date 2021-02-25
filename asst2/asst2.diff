@@ -1,0 +1,884 @@
+Index: os161-1.11/kern/arch/mips/include/trapframe.h
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/arch/mips/include/trapframe.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+75c75
+< void md_forkentry(struct trapframe *tf);
+---
+> void md_forkentry(struct trapframe *tf, unsigned long addr);
+Index: os161-1.11/kern/arch/mips/mips/syscall.c
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/arch/mips/mips/syscall.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+54a55,56
+> 	unsigned int i;
+> 
+74c76,99
+< 
+---
+> 	    case SYS_fork:
+> 		err = sys_fork(tf, &retval);
+> 		break;
+> 	    case SYS_waitpid:
+> 		err = sys_waitpid(tf->tf_a0, tf->tf_a1, tf->tf_a2, &retval);
+> 		break;
+> 	    case SYS__exit:
+> 		sys__exit(tf->tf_a0);
+> 		err = 0;
+> 		break;
+> 	    case SYS_getpid:
+> 		retval = sys_getpid();
+> 		err = 0;
+> 		break;
+> 	    case SYS_execv:
+> 		retval = sys_execv((char *)tf->tf_a0,(char **)tf->tf_a1);
+> 		err = 0;
+> 		break;
+> 	    case SYS_write:
+> 		for (i = 0; i < (size_t) tf->tf_a2; ++i) {
+> 		    kprintf("%c", ((char *) tf->tf_a1)[i]);
+> 		}
+> 		err = 0;
+> 		break;
+109,121d133
+< 
+< void
+< md_forkentry(struct trapframe *tf)
+< {
+< 	/*
+< 	 * This function is provided as a reminder. You need to write
+< 	 * both it and the code that calls it.
+< 	 *
+< 	 * Thus, you can trash it and do things another way if you prefer.
+< 	 */
+< 
+< 	(void)tf;
+< }
+Index: os161-1.11/kern/arch/mips/mips/trap.c
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/arch/mips/mips/trap.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+9a10
+> #include <syscall.h>
+44c45
+< 
+---
+> 	sys__exit(100);
+47a49,50
+> 	//sys__exit(code);
+> 	sys__exit(100);
+Index: os161-1.11/kern/conf/conf.kern
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/conf/conf.kern,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -r1.2 -r1.3
+367a368
+> file      thread/process_create.c #added to file by me
+385a387,392
+> file      userprog/syscall_impl.c #added for asst2
+> #file      userprog/getpid.c #added for asst2
+> #file      userprog/fork.c #added for asst2
+> #file      userprog/exec.c #added for asst2
+> #file      userprog/waitpid.c #added for asst2
+> #file      userprog/exit.c #added for asst2
+Index: os161-1.11/kern/include/synch.h
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/include/synch.h,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -r1.2 -r1.3
+95a96,97
+> 	int count; //keep track of resources
+> 	struct queue *thread_queue; //hold a queue of all threads so that none are starved.
+Index: os161-1.11/kern/include/syscall.h
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/include/syscall.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.3
+diff -r1.1.1.1 -r1.3
+10a11,16
+> int sys_getpid (void);
+> void sys__exit (int exitcode);
+> int sys_execv(char *program, char **args);
+> int sys_fork(struct trapframe* tf, int* retval);
+> int sys_waitpid (pid_t pid, int* status, int options, int* retval);
+> 
+Index: os161-1.11/kern/include/thread.h
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/include/thread.h,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+10a11,18
+> #define PROCESS_RUNNING 1
+> #define PROCESS_STOP 0
+> #define MAXPID 500
+> #define MINPID 101
+> 
+> #define THREAD_PRIORITY_HIGHEST 100
+> #define THREAD_PRIORITY_LOWEST 0
+> #define MAX_OPENED_FILES 128 // Arbitrary setting--may need to change
+23c31,37
+< 	
+---
+> 	//The id of matching process 
+>     	pid_t pid; 
+>     	//the pointer to process data structure
+> 	struct process* array_ptr; 
+> 
+> 	int t_priority;
+> 		
+41a56,76
+> //------------------------------
+> struct process {
+>   int status;
+>   int exitcode;
+>   pid_t pid;
+>   pid_t ppid;
+>   struct thread* process_ptr;
+>   struct cv* array_cv;
+> };
+> 
+> struct lock* process_lock;
+> 
+> struct process** array_table;
+> 
+> //struct process* get_process (pid_t pid);
+> struct thread * child_process(struct thread *thread);
+> struct thread * init_process(struct thread *thread);
+> pid_t next_pid (void);
+> //------------------------------
+> 
+> 
+86a122
+> void thread_destroy(struct thread *thread);
+91a128
+> void wakeup_single_thread(const void *addr);
+110a148,149
+> int thread_get_priority(struct thread *thread);
+> void thread_set_priority(struct thread *thread, int priority);
+Index: os161-1.11/kern/thread/scheduler.c
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/thread/scheduler.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+21a22,26
+> //anti starvation cycles
+> static int cycles = 0;
+> 
+> 
+> 
+104c109,176
+< 	return q_remhead(runqueue);
+---
+> 	/* MLFQ method */
+> 	// We will go through all of our queue, looking for the highest priority thread
+> 	// By starting at the next read and working up, on a tie we are taking the first in
+> 	
+> 	// queue size is 32 by default
+> 	int queue_size = q_getsize(runqueue);
+> 	int i;
+> 	int chosen_index;
+> 	int priority;
+> 	int random_choice;
+> 
+> 	struct thread * temp_thread;
+> 	
+> 	// We will have to get the thread number from within the active part
+> 	// of the queue
+> 	int start = q_getstart(runqueue);
+> 	int end = q_getend(runqueue);
+> 	
+> 	cycles++;
+> 
+> 	if (cycles > 2000){
+> 		// reset priorities 
+> 		i = start;
+> 		while (i != end){
+> 			temp_thread = q_getguy(runqueue, 1);
+> 			//DEBUG(DB_THREADS, "Setting priority\n");
+> 			thread_set_priority(temp_thread, 50);
+> 			i = (i+1) % queue_size;
+> 		}
+> 		cycles = 0;
+> 		return q_remhead(runqueue);
+> 	}
+> 	
+> 	int highest_priority = -1; // 100 is maximum priority
+> 	
+> 	i = start;
+> 	while (i != end){
+> 		temp_thread = q_getguy(runqueue, i);
+> 		//DEBUG(DB_THREADS, "Getting priority\n");
+> 		priority = thread_get_priority(temp_thread);
+> 		//DEBUG(DB_THREADS, "Priority: %u.\n", priority);
+> 		if (priority > highest_priority){
+> 			chosen_index = i;
+> 			highest_priority = priority;
+> 		}
+> 		//when tie happens , random
+> 		else if (priority == highest_priority){
+> 			random_choice == random() % 3;
+> 			if (random_choice == 0){
+> 				chosen_index = i;
+> 			}
+> 		}
+> 		i = (i+1) % queue_size;
+> 	}
+> 	
+> 	//DEBUG(DB_THREADS, "Start: %u.\n", start);
+> 	//DEBUG(DB_THREADS, "End: %u.\n", end);					
+> 	//DEBUG(DB_THREADS, "%u index chosen with priority %u.\n", chosen_index, highest_priority);
+> 	
+> 	while (q_getstart(runqueue) != chosen_index){
+> 		temp_thread = q_remhead(runqueue);
+> 		q_addtail(runqueue, temp_thread);
+> 	}
+> 	
+> 	//DEBUG(DB_THREADS, "New start: %u.\n", q_getstart(runqueue));
+> 	//DEBUG(DB_THREADS, "New end: %u.\n", q_getend(runqueue));
+> 	
+> 	return q_remhead(runqueue);	
+Index: os161-1.11/kern/thread/synch.c
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/thread/synch.c,v
+retrieving revision 1.2
+retrieving revision 1.3
+diff -r1.2 -r1.3
+211a212,217
+> 	//Initialize count to 0
+> 	////cv->count=0;
+> 	
+> 	//Create the queue
+> 	////cv->thread_queue = q_create(1);
+> 		
+219a226,231
+> 	////assert(cv->count == 0); // no resources left!
+> 	////assert(q_empty(cv->thread_queue)); //make sure the queue is empty
+> 	
+> 	//If those pass, we destroy the queue!
+> 	////q_destroy(cv->thread_queue);
+> 	
+223a236,237
+> 
+> 	////cv = NULL; //set the pointer to null just in case
+228a243,271
+> 	assert(cv != NULL);
+> 	assert(lock !=NULL);
+> 	assert (lock_do_i_hold(lock));
+> 	
+> 	int spl;
+> 	spl = splhigh();
+> 	lock_release(lock);
+> 	thread_sleep(cv);
+> 	//thread_wakeup(cv);
+> 	lock_acquire(lock);
+> 	splx(spl);
+> 
+> 	////assert(in_interrupt == 0);
+> 	
+> 	////spl = splhigh(); //Disable All Interrupts
+> 	
+> 	////lock_release(lock); //Unlock
+> 	
+> 	////cv->count++; //Add one to the count since we have one more thread waiting now.
+> 	
+> 	////q_preallocate(cv->thread_queue,cv->count); // not sure about this.
+> 	
+> 	////q_addtail(cv->thread_queue, curthread); //add the currently waiting thread in the queue;
+> 	
+> 	////thread_sleep(curthread); // now that the thread is in the queue, it can sleep.
+> 	
+> 	////lock_acquire(lock); //When awoken, reacquire the lock if available. If not available, the thread will go back to bed inside lock_acquire();
+> 
+> 	////splx(spl); //Re-enable interrupts
+230,231c273,274
+< 	(void)cv;    // suppress warning until code gets written
+< 	(void)lock;  // suppress warning until code gets written
+---
+> 	//(void)cv;    // suppress warning until code gets written
+> 	//(void)lock;  // suppress warning until code gets written
+236a280,295
+> 	int spl;
+> 	assert(cv != NULL);
+> 	assert(lock !=NULL);
+> 	assert (lock_do_i_hold(lock));
+> 	
+> 	spl = splhigh(); //Disable All Interrupts
+> 	
+> 	wakeup_single_thread(cv);
+> 
+> 	////cv->count--; //Decrement count since the next thread can go.
+> 	
+> 	////struct thread *next_thread = q_remhead(cv->thread_queue); //removes the next head in the queue.
+>     
+> 	////thread_wakeup(next_thread); //Wake up this next thread!
+>     
+> 	splx(spl); //Re-enable All Interrupts
+238,239c297,298
+< 	(void)cv;    // suppress warning until code gets written
+< 	(void)lock;  // suppress warning until code gets written
+---
+> 	//(void)cv;    // suppress warning until code gets written
+> 	//(void)lock;  // suppress warning until code gets written
+244a304,316
+> 	assert(cv != NULL);
+> 	assert (lock != NULL);
+> 	
+> 	int spl;
+> 	spl = splhigh();
+> 	thread_wakeup(cv);
+> 	splx(spl);
+> 	
+> 	////assert (lock_do_i_hold(lock));
+> 	////while (cv->count > 0) cv_signal(cv, lock);
+> 	////assert(cv->count == 0);
+> 	////assert(q_empty(cv->thread_queue));
+> 	
+246,247c318,319
+< 	(void)cv;    // suppress warning until code gets written
+< 	(void)lock;  // suppress warning until code gets written
+---
+> 	//(void)cv;    // suppress warning until code gets written
+> 	//(void)lock;  // suppress warning until code gets written
+Index: os161-1.11/kern/thread/thread.c
+===================================================================
+RCS file: /home/nimam/os161/cvsroot/os161-1.11/kern/thread/thread.c,v
+retrieving revision 1.1.1.1
+retrieving revision 1.2
+diff -r1.1.1.1 -r1.2
+2c2
+<  * Core thread system.
+---
+>  * Core thread system
+6a7
+> #include <kern/unistd.h>
+15a17,18
+> #include <synch.h>
+> #include <process_create.h>
+19,22c22,25
+< 	S_RUN,
+< 	S_READY,
+< 	S_SLEEP,
+< 	S_ZOMB,
+---
+>         S_RUN,
+>         S_READY,
+>         S_SLEEP,
+>         S_ZOMB,
+36a40,42
+> /* Used to check the process */
+> static int first = 1;
+> 
+38c44
+<  * Create a thread. This is used both to create the first thread's 
+---
+>  * Create a thread. This is used both to create the first thread's
+41,45c47
+< 
+< static
+< struct thread *
+< thread_create(const char *name)
+< {
+---
+> static struct thread *thread_create(const char *name){
+47,58c49,60
+< 	if (thread==NULL) {
+< 		return NULL;
+< 	}
+< 	thread->t_name = kstrdup(name);
+< 	if (thread->t_name==NULL) {
+< 		kfree(thread);
+< 		return NULL;
+< 	}
+< 	thread->t_sleepaddr = NULL;
+< 	thread->t_stack = NULL;
+< 	
+< 	thread->t_vmspace = NULL;
+---
+>         if (thread==NULL) {
+>                 return NULL;
+>         }
+>         thread->t_name = kstrdup(name);
+>         if (thread->t_name==NULL) {
+>                 kfree(thread);
+>                 return NULL;
+>         }
+>         thread->t_sleepaddr = NULL;
+>         thread->t_stack = NULL;
+>         thread->t_vmspace = NULL;
+>         thread->t_cwd = NULL;
+60,65c62,67
+< 	thread->t_cwd = NULL;
+< 	
+< 	// If you add things to the thread structure, be sure to initialize
+< 	// them here.
+< 	
+< 	return thread;
+---
+> 	if (first == 1) return init_process(thread);
+> 	else return child_process(thread);
+> 
+> 	thread->t_priority = 50; // Medium priority by default (scale 1-100)
+> 
+>         return thread;
+74,77c76
+< static
+< void
+< thread_destroy(struct thread *thread)
+< {
+---
+> void thread_destroy(struct thread *thread){
+79,83d77
+< 
+< 	// If you add things to the thread structure, be sure to dispose of
+< 	// them here or in thread_exit.
+< 
+< 	// These things are cleaned up in thread_exit.
+86d79
+< 	
+90d82
+< 
+100,103c92
+< static
+< void
+< exorcise(void)
+< {
+---
+> static void exorcise(void){
+105d93
+< 
+107d94
+< 	
+122,125c109
+< static
+< void
+< thread_killall(void)
+< {
+---
+> static void thread_killall(void){
+127d110
+< 
+129d111
+< 
+131,134c113,115
+< 	 * Move all sleepers to the zombie list, to be sure they don't
+< 	 * wake up while we're shutting down.
+< 	 */
+< 
+---
+>  	 * Move all sleepers to the zombie list, to be sure they don't
+>  	 * wake up while we're shutting down.
+>  	 */
+138d118
+< 
+140,146c120,124
+< 		 * Don't do this: because these threads haven't
+< 		 * been through thread_exit, thread_destroy will
+< 		 * get upset. Just drop the threads on the floor,
+< 		 * which is safer anyway during panic.
+< 		 *
+< 		 * array_add(zombies, t);
+< 		 */
+---
+>  		 * Don't do this: because these threads haven't
+>  		 * been through thread_exit, thread_destroy will
+>  		 * get upset. Just drop the threads on the floor,
+>  		 * which is safer anyway during panic.
+>  		 */
+148d125
+< 
+157,159c134
+< void
+< thread_panic(void)
+< {
+---
+> void thread_panic(void){
+161d135
+< 
+169,171c143
+< struct thread *
+< thread_bootstrap(void)
+< {
+---
+> struct thread *thread_bootstrap(void){
+173a146,151
+> 	array_table = kmalloc((MAXPID + 1)*sizeof(struct process*));
+> 	int i;
+> 	for(i = 0; i < MAXPID; i++){
+> 		array_table[i] = NULL;
+> 	}
+> 
+192a171,172
+> 	
+> 	first = 0;
+195,198c175,177
+< 	 * Leave me->t_stack NULL. This means we're using the boot stack,
+< 	 * which can't be freed.
+< 	 */
+< 
+---
+>  	 * Leave me->t_stack NULL. This means we're using the boot stack,
+>  	 * which can't be freed.
+>  	 */
+201d179
+< 
+204d181
+< 
+207d183
+< 
+215,217c191
+< void
+< thread_shutdown(void)
+< {
+---
+> void thread_shutdown(void){
+222,223d195
+< 	// Don't do this - it frees our stack and we blow up
+< 	//thread_destroy(curthread);
+231,232c203
+< int
+< thread_fork(const char *name, 
+---
+> int thread_fork(const char *name, 
+239d209
+< 
+245d214
+< 
+253d221
+< 
+259d226
+< 
+265d231
+< 
+268d233
+< 
+271d235
+< 
+274,275c238,239
+< 	 * run out later at an inconvenient time.
+< 	 */
+---
+>  	 * run out later at an inconvenient time.
+>  	 */
+284d247
+< 
+290d252
+< 
+296d257
+< 
+298,302c259,263
+< 	 * Increment the thread counter. This must be done atomically
+< 	 * with the preallocate calls; otherwise the count can be
+< 	 * temporarily too low, which would obviate its reason for
+< 	 * existence.
+< 	 */
+---
+>  	 * Increment the thread counter. This must be done atomically
+>  	 * with the preallocate calls; otherwise the count can be
+>  	 * temporarily too low, which would obviate its reason for
+>  	 * existence.
+>  	 */
+304d264
+< 
+307d266
+< 
+309,313c268,272
+< 	 * Return new thread structure if it's wanted.  Note that
+< 	 * using the thread structure from the parent thread should be
+< 	 * done only with caution, because in general the child thread
+< 	 * might exit at any time.
+< 	 */
+---
+>  	 * Return new thread structure if it's wanted.  Note that
+>  	 * using the thread structure from the parent thread should be
+>  	 * done only with caution, because in general the child thread
+>  	 * might exit at any time.
+>  	 */
+317d275
+< 
+319d276
+< 
+328d284
+< 
+335,338c291
+< static
+< void
+< mi_switch(threadstate_t nextstate)
+< {
+---
+> static void mi_switch(threadstate_t nextstate){
+341c294
+< 	
+---
+> 	int cur_priority;
+344d296
+< 
+347,351c299,303
+< 		 * Check the magic number we put on the bottom end of
+< 		 * the stack in thread_fork. If these assertions go
+< 		 * off, it most likely means you overflowed your stack
+< 		 * at some point, which can cause all kinds of
+< 		 * mysterious other things to happen.
+---
+>  		 * Check the magic number we put on the bottom end of
+>  		 * the stack in thread_fork. If these assertions go
+>  		 * off, it most likely means you overflowed your stack
+>  		 * at some point, which can cause all kinds of
+>  		 * mysterious other things to happen.
+357,358c309
+< 	}
+< 	
+---
+> 	}	
+360,363c311,314
+< 	 * We set curthread to NULL while the scheduler is running, to
+< 	 * make sure we don't call it recursively (this could happen
+< 	 * otherwise, if we get a timer interrupt in the idle loop.)
+< 	 */
+---
+>  	 * We set curthread to NULL while the scheduler is running, to
+>   	 * make sure we don't call it recursively (this could happen
+>  	 * otherwise, if we get a timer interrupt in the idle loop.)
+>  	 */
+369d319
+< 
+371,373c321,323
+< 	 * Stash the current thread on whatever list it's supposed to go on.
+< 	 * Because we preallocate during thread_fork, this should not fail.
+< 	 */
+---
+>   	 * Stash the current thread on whatever list it's supposed to go on.
+>    	 * Because we preallocate during thread_fork, this should not fail.
+>  	 */
+375a326,328
+> 		cur_priority = thread_get_priority(cur);
+> 		cur_priority--;
+> 		thread_set_priority(cur, cur_priority);
+380,382c333,338
+< 		 * Because we preallocate sleepers[] during thread_fork,
+< 		 * this should never fail.
+< 		 */
+---
+>   		 * Because we preallocate sleepers[] during thread_fork,
+>   		 * this should never fail.
+>  		 */
+> 		cur_priority = thread_get_priority(cur);
+> 		cur_priority++;
+> 		thread_set_priority(cur, cur_priority);
+390d345
+< 
+392,394c347,348
+< 	 * Call the scheduler (must come *after* the array_adds)
+< 	 */
+< 
+---
+>   	 * Call the scheduler (must come *after* the array_adds)
+>   	 */
+396d349
+< 
+399d351
+< 	
+401,405c353,356
+< 	 * Call the machine-dependent code that actually does the
+< 	 * context switch.
+< 	 */
+< 	md_switch(&cur->t_pcb, &next->t_pcb);
+< 	
+---
+>  	 * Call the machine-dependent code that actually does the
+>   	 * context switch.
+>   	 */
+> 	md_switch(&cur->t_pcb, &next->t_pcb);	
+407,413c358,363
+< 	 * If we switch to a new thread, we don't come here, so anything
+< 	 * done here must be in mi_threadstart() as well, or be skippable,
+< 	 * or not apply to new threads.
+< 	 *
+< 	 * exorcise is skippable; as_activate is done in mi_threadstart.
+< 	 */
+< 
+---
+>   	 * If we switch to a new thread, we don't come here, so anything
+>   	 * done here must be in mi_threadstart() as well, or be skippable,
+>   	 * or not apply to new threads.
+>  	 *
+>  	 * exorcise is skippable; as_activate is done in mi_threadstart.
+>   	 */
+415d364
+< 
+428,430c377,399
+< void
+< thread_exit(void)
+< {
+---
+> void thread_exit(void){
+> 
+> 	//added by me for pid
+> 	int n[20]; //array of 10 ints
+> 	int parent_pid = curthread->pid;
+> 	assert(parent_pid >= MINPID && parent_pid <= MAXPID);
+> 	int i;
+> 	int j = 0;
+> 	for (i = MINPID; i <= MAXPID; i++){
+> 		if (array_table[i] == NULL){
+> 			//skip
+> 		}
+> 		else if (array_table[i]->ppid == parent_pid && array_table[i]->status == PROCESS_STOP){
+> 			n[j] = array_table[i]->pid;
+> 			j++;
+> 			cv_destroy(array_table[i]->array_cv);
+> 			kfree(array_table[i]);
+> 			array_table[i] = NULL;
+> 			}
+> 	}
+> 
+> 	lock_release(process_lock);
+> 
+444d412
+< 
+446d413
+< 
+449,451c416,418
+< 		 * Do this carefully to avoid race condition with
+< 		 * context switch code.
+< 		 */
+---
+>  		 * Do this carefully to avoid race condition with
+>   		 * context switch code.
+>  		 */
+456d422
+< 
+461d426
+< 
+465d429
+< 
+472,474c436
+< void
+< thread_yield(void)
+< {
+---
+> void thread_yield(void){
+476d437
+< 
+479d439
+< 
+495,498c455
+< void
+< thread_sleep(const void *addr)
+< {
+< 	// may not sleep in an interrupt handler
+---
+> void thread_sleep(const void *addr){
+500d456
+< 	
+506a463,479
+>  * Wake up one thread
+>  */
+> void wakeup_single_thread(const void *addr){
+>         int i, result;
+>         assert(curspl>0);
+>         for (i=0; i<array_getnum(sleepers); i++) {
+>                 struct thread *t = array_getguy(sleepers, i);
+>                 if (t->t_sleepaddr == addr) {
+>                         array_remove(sleepers, i);
+>                         result = make_runnable(t);
+>                         assert(result==0);
+>         		break;
+> 	        }
+>         }
+> }
+> 
+> /*
+510,512c483
+< void
+< thread_wakeup(const void *addr)
+< {
+---
+> void thread_wakeup(const void *addr){
+514,515d484
+< 	
+< 	// meant to be called with interrupts off
+517,519d485
+< 	
+< 	// This is inefficient. Feel free to improve it.
+< 	
+523,524d488
+< 			
+< 			// Remove from list
+526,527d489
+< 			
+< 			// must look at the same sleepers[i] again
+529d490
+< 
+532,533c493,494
+< 			 * this should never fail.
+< 			 */
+---
+>  			 * this should never fail.
+>   			 */
+544,546c505
+< int
+< thread_hassleepers(const void *addr)
+< {
+---
+> int thread_hassleepers(const void *addr){
+548,549d506
+< 	
+< 	// meant to be called with interrupts off
+551d507
+< 	
+566,569c522,523
+< void
+< mi_threadstart(void *data1, unsigned long data2, 
+< 	       void (*func)(void *, unsigned long))
+< {
+---
+> void mi_threadstart(void *data1, unsigned long data2, 
+> 	       void (*func)(void *, unsigned long)){
+574d527
+< 
+577d529
+< 
+588d539
+< 	
+591d541
+< 
+594a545,573
+> 
+> //-------------- additional for mlfq
+> 
+> /*
+>  * Get the priority level of a thread
+>  * 
+>  */
+> int thread_get_priority(struct thread *thread){
+> 	assert(thread != NULL);
+> 	return thread->t_priority;
+> }
+> 
+> /*
+>  * Set the priority level of a thread
+>  * 
+>  */
+> void thread_set_priority(struct thread *thread, int priority){
+> 	assert(thread != NULL);
+> 	
+> 	// Verify priority is within range
+> 	if (priority > THREAD_PRIORITY_HIGHEST)
+> 		priority = THREAD_PRIORITY_HIGHEST;
+> 	if (priority < THREAD_PRIORITY_LOWEST)
+> 		priority = THREAD_PRIORITY_LOWEST;
+> 	thread->t_priority = priority;
+> }
+> 
+> 
+> 
